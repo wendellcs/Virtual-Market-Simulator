@@ -1,11 +1,10 @@
 from controllers.db_users_controller import Db_users_controller as uController
 from services.session_manager import Session_manager
-from model.client_model import Client
-from view.interface import start_app
-import time
+from view.interface import menu
 from utils.terminal import clear, sleep
 
 def login():
+
     while True:
         clear()
         print('==========> Faça seu login <==========')
@@ -31,26 +30,28 @@ def login():
 
         print('-----------------------------------------')
 
-        if client_password and client_username:
-            validated_client_login = Session_manager.validate_login_info(client_username, client_password)
-            if validated_client_login:
-                Session_manager.set_login(client_username)
-                
-                print('Login efetuado com sucesso!')
-                print('Voltando ao menu...')
-                
-                sleep()
-                start_app()
-            else:
-                print('Algo deu errado.')
-                print('Confira suas informações e faça login novamente.')
-                sleep()
-
-        if answer == 0:
+        if not client_password or not client_username:
             clear()
-            print('Voltando...')
-            break
+            print('Preencha todos os campos!')
+            sleep()
+            return
+        
+        validated_client_login = Session_manager.validate_login_info(client_username, client_password)
 
+        if not validated_client_login:
+            clear()
+            print('Algo deu errado.')
+            print('Confira suas informações e faça login novamente.')
+            sleep()
+            return
+        
+        Session_manager.set_login(client_username)
+            
+        print('Login efetuado com sucesso!')
+        print('Voltando ao menu...')
+        
+        sleep()
+        menu()
 
 def register():
     clear()
@@ -68,24 +69,27 @@ def register():
     sleep()
 
     try:
-        if client_name and client_password and client_username:
-            if uController.verify_username(client_username):
-                clear()
-                uController.set_client((client_name, client_username, client_password))
-
-                print('-----------------------------------------')
-                print('Faça login para continuar utilizando nossos serviços')
-                print('-----------------------------------------')
-
-                input('Envie qualquer valor para continuar com o login: ')
-
-                login()
-            else: 
-                print('Usuário indisponível...')
-                sleep()
-        else: 
+        if not client_name or not client_password or not client_username:
             print('Por favor preencha todos os campos.')
             sleep()
+            return
+
+        if not uController.verify_username(client_username):
+            print('Usuário indisponível...')
+            sleep()
+            return 
+        
+        clear()
+        uController.set_client((client_name, client_username, client_password))
+
+        print('-----------------------------------------')
+        print('Faça login para continuar utilizando nossos serviços')
+        print('-----------------------------------------')
+
+        input('Envie qualquer valor para continuar com o login: ')
+
+        login()
+            
     except:
         print('-----------------------------------------')
         print('Tivemos algum problema ao criar seu login.')

@@ -1,6 +1,6 @@
 from controllers.db_products_controller import Db_products_controller as prodController
 from view import login_view
-from services.session_manager import Session_manager as session
+from services.session_manager import Session_manager
 from model.product_model import Product
 from utils.terminal import clear, sleep
 
@@ -8,81 +8,84 @@ class Interface:
     pass
 
 def create_product():
-    user = session.get_client_info()
+    user = Session_manager.get_client_info()
     while True:
         clear()
 
         print('==========> Mercado Virtual <==========')
-        if user:
-            if user['admin']:
-                print('Informações do produto')
-
-                product_name = input('Digite o nome do produto: ')
-                product_price = input('Digite o preço do produto: ')
-                product_stock = input('Digite a quantidade do produto: ')
-
-                clear()
-                
-                if prodController.verify_product(product_name):
-                    print('Já existe um produto com esse nome.')
-                    sleep()
-                    start_app()
-                
-                print('-----------------------------------------')
-                print('Verifique as informações do produto')
-                print('-----------------------------------------')
-                
-
-                if product_name and product_price and product_stock:
-                    print(f'O seguinte produto será adicionado: \nNome: {product_name} \nPreço: {product_price} \nQuantidade: {product_stock}')
-
-                    print('1 - Confirmar')
-                    print('0 - Cancelar')
-                    print('-----------------------------------------')
-                    answer = int(input('Adicionar produto? \n---> '))
-                    print('-----------------------------------------')
-
-                    if answer == 1:
-                        clear()
-
-                        product = Product(product_name, product_price, product_stock)
-                        prodController.set_product(product)
-
-                        sleep()
-                        start_app()
-                    else:
-                        clear()
-                        print('Cancelando adição...')
-                        sleep()
-
-                        start_app()
-
-                else: 
-                    clear()
-                    print('Todos os campos devem ser preenchidos!')
-                    sleep()
-                    create_product()
-
-            else: 
-                print('Apenas adms podem adicionar produtos.')
-                sleep()
-                start_app()
-
-        else: 
+        if not user:
             print('Nenhum usuário logado.')
             print('Voltando ao menu...')
 
             sleep()
-            start_app()
+            menu()
 
+        if not user.get_client_info()['admin']:
+            print('Apenas adms podem adicionar produtos.')
+            sleep()
+            menu()
+
+            
+        print('Informações do produto')
+
+        product_name = input('Digite o nome do produto: ')
+        product_price = input('Digite o preço do produto: ')
+        product_stock = input('Digite a quantidade do produto: ')
+
+        clear()
+        
+        if prodController.verify_product(product_name):
+            print('Já existe um produto com esse nome.')
+            sleep()
+            menu()
+        
+        print('-----------------------------------------')
+        print('Verifique as informações do produto')
+        print('-----------------------------------------')
+        
+
+        if not product_name and not product_price and not product_stock:
+            clear()
+            print('Todos os campos devem ser preenchidos!')
+            sleep()
+            create_product()
+
+        print(f'O seguinte produto será adicionado: \nNome: {product_name} \nPreço: {product_price} \nQuantidade: {product_stock}')
+
+        print('1 - Confirmar')
+        print('0 - Cancelar')
+        print('-----------------------------------------')
+        answer = int(input('Adicionar produto? \n---> '))
+        print('-----------------------------------------')
+
+        if answer == 1:
+            clear()
+            print('Cancelando adição...')
+            sleep()
+
+            menu()
+            
+        clear()
+
+        product = Product(product_name, product_price, product_stock)
+        prodController.set_product(product)
+
+        sleep()
+        menu()
+                    
 def advanced_mode():
+    client_logged = Session_manager.get_client_info()
+
     while True:
         clear()
         print('==========> Mercado Virtual <==========')
         print('==========> Avançado')
         print('1 - Adicionar produto')
-        print('2 - Fazer login')
-        print('3 - Ver relatório do caixa')
+        print('2 - Ver relatório do caixa')
+
+        if not client_logged:
+            print('3 - Fazer login')
+
         print('0 - Voltar')
 
         answer = int(input('Escolha: '))
@@ -90,18 +93,26 @@ def advanced_mode():
         if answer == 1:
             create_product()
 
-        if answer == 2:
-            login_view.login()
-
-        if answer == 3:
+        elif answer == 2:
             # Verificar se o usuário tem permissão
             pass
 
-        if answer == 0:
+        elif answer == 3 and not client_logged:
+            login_view.login()
+
+        elif answer == 0:
             break
 
-def start_app():
-    user = session.get_client_info()
+        else: 
+            clear()
+            print('-----------------------------------------')
+            print('Não temos essa opção.')
+            print('-----------------------------------------')
+            sleep()
+
+def menu():
+    client_logged = Session_manager.get_client_info()
+
     while True:
         clear()
         print('==========> Mercado Virtual <==========')
@@ -113,14 +124,11 @@ def start_app():
         print('0 - Sair')
 
         print('-----------------------------------------')
-        if user:
-            print('Seja bem-vindo: ' + user.name)
+        if client_logged:
+            print('Seja bem-vindo: ' + client_logged.name)
         else:
             print('Nenhum usuário logado!')
         print('-----------------------------------------')
-
-
-        client = False
 
         answer = int(input('Escolha: '))
 
@@ -134,14 +142,20 @@ def start_app():
             input('Envie qualquer valor para voltar: ')
 
         if answer == 2:
-            if client:
-                pass
+            pass
 
-        if answer == 5:
+        elif answer == 5:
             advanced_mode()
 
-        if answer == 0:
+        elif answer == 0:
             clear()
             print('Saindo...')
             sleep()
             break
+
+        else: 
+            clear()
+            print('-----------------------------------------')
+            print('Não temos essa opção.')
+            print('-----------------------------------------')
+            sleep()
