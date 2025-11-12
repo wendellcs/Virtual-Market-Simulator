@@ -3,6 +3,7 @@ from view import login_view
 from services.session_manager import Session_manager
 from model.product_model import Product
 from utils.terminal import clear, sleep
+import uuid
 
 class Interface:
     pass
@@ -62,7 +63,6 @@ def create_product():
             clear()
             print('Cancelando adição...')
             sleep()
-
             menu()
             
         clear()
@@ -136,10 +136,42 @@ def menu():
             clear()
             products = prodController.get_products()
             print('==========> Produtos <==========')
-            print(products)
-            print('-----------------------------------------')
+            for i, prod in enumerate(products):
+                name, price, stock = prod.get_product_info()
+                print(f'{i + 1} - {name} | Preço: R${price} | Quantidade: {stock}')
+                print('-----------------------------------------')
 
-            input('Envie qualquer valor para voltar: ')
+            if client_logged:
+                print('Deseja comprar algo?')
+                answer_buy = input('1 - SIM\n2 - NÃO')
+
+                if answer_buy == '1':
+                    while True:
+                        name_prod = input('Digite o nome do produto: ')
+                        qtd_prod = int(input('Quantidade: '))
+
+                        if not prodController.verify_product(name_prod):
+                            clear()
+                            print('Problema ao adicionar produto...')
+                            sleep()
+                            continue
+
+                        buy_order = {
+                            'order_id': uuid.uuid4(),
+                            'product': prodController.get_product(name_prod),
+                            'qtd': qtd_prod
+                        }
+
+                        client_logged.add_to_cart(buy_order)
+                else:
+                    clear()
+                    print('Voltando...')
+                    sleep()
+                    menu()
+
+            else: 
+                print('Faça login para comprar algo.')
+                input()
 
         if answer == 2:
             pass

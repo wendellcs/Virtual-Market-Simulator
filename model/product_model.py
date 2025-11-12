@@ -1,10 +1,15 @@
-from controllers.db_products_controller import Db_products_controller as pController
-
 class Product:
-    def __init__(self, name , price, stock):
-        self.name = name
-        self.price = price
-        self.stock = stock
+    def __init__(self,id, name , price, stock):
+        self.__id = id
+        self.__name = name
+        self.__price = price
+        self.__stock = stock
 
     def get_product_info(self):
-        return (self.name, self.price, self.stock)
+        return (self.__name, self.__price, self.__stock)
+    
+    def get_stock(self):
+        return self.__stock
+    
+    def get_product_id(self):
+        return self.__id

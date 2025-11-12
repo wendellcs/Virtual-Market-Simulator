@@ -1,5 +1,6 @@
 import sqlite3
 from utils.terminal import sleep
+from model.product_model import Product
 
 class Db_products_controller:
     @classmethod
@@ -23,14 +24,15 @@ class Db_products_controller:
     @classmethod
     def get_products(self):
         try:
-            data = None
             with sqlite3.connect('./database/products.db') as connection:
                 cursor = connection.cursor()
 
                 data = cursor.execute('SELECT * FROM products')
                 data = data.fetchall()
 
-            return data
+                products = [Product(*p) for p in data]
+                return products
+            
         except Exception as e:
             print('Erro ao buscar os produtos!')
             print(f'Erro: {e}')
@@ -39,15 +41,19 @@ class Db_products_controller:
     @classmethod
     def verify_product(cls, product):
         try:
-            product_list = cls.get_products()
-
-            for p in product_list:
-                if product == p[1]:
-                    return True
-            
-            return False
+            return next((True for p in cls.get_products() if p.get_product_info()[0].lower() == product.lower()), False)
         
         except Exception as e:
             print('Erro ao verificar os produtos.')
+            print(f'Erro: {e}')
+            sleep()
+
+    @classmethod
+    def get_product(cls, product):
+        try: 
+            return next((p for p in cls.get_products() if p.get_product_info()[0].lower() == product.lower()), None)
+
+        except Exception as e:
+            print('Erro ao buscar produto.')
             print(f'Erro: {e}')
             sleep()
