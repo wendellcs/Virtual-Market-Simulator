@@ -26,9 +26,11 @@ class Client:
             'id': self.__id, 
             'name': self.name, 
             'username': self.username, 
-            'money': self.__money, 
-            'admin': self.__admin
+            'money': self.__money
         }
     
     def check_password(self, password):
         return password == self.__password
+    
+    def is_admin(self):
+        return self.__admin

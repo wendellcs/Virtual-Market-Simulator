@@ -43,6 +43,33 @@ class Db_users_controller:
             sleep()
 
     @classmethod
+    def delete_user(cls, id):
+        try:
+            with sqlite3.connect('./database/users.db') as connection:
+                connection = sqlite3.connect('./database/users.db')
+                cursor = connection.cursor()
+
+                cursor.execute('DELETE FROM users WHERE id = ?', (id))
+
+                connection.commit()
+
+            print('Cliente deletado com sucesso!')
+            sleep()
+
+        except Exception as e:
+            print('Ocorreu um erro ao excluir cliente.')
+            print('Erro:', e)
+            sleep()
+
+    @classmethod
+    def get_users_info(cls, logged_client):
+        if not logged_client:
+            return
+        
+        if logged_client.is_admin():
+            return cls.get_clients()
+
+    @classmethod
     def get_client_by_username(cls, username):
         return next((c for c in cls.get_clients() if c.username == username), None)
 
