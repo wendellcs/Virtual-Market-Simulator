@@ -1,9 +1,9 @@
 from tkinter import *
 
 # from controllers.db_products_controller import Db_products_controller as prodController
-# from controllers.db_users_controller import Db_users_controller as userController
+from controllers.db_users_controller import Db_users_controller as usersCon
+from services.session_manager import Session_manager as sessionMan
 # from view import login_view
-# from services.session_manager import Session_manager
 # from model.product_model import Product
 # from utils.terminal import clear, sleep
 # import uuid
@@ -23,19 +23,53 @@ container.grid_columnconfigure(0, weight=1)
 
 register_frame = Frame(container)
 login_frame = Frame(container)
+home_frame = Frame(container)
 
-frames = [login_frame, register_frame]
+frames = [login_frame, register_frame, home_frame]
 
 for frame in frames:
     frame.grid(row=0, column=0, sticky='nsew')
 
     frame.grid_columnconfigure(0, weight=1)
 
-login_frame.grid(row=0, column=0, pady=20)
-register_frame.grid(row=0, column=0, pady=20)
-
 def show_screen(frame):
     frame.tkraise()
+
+def register_view():
+    show_screen(register_frame)
+
+def login_view():
+    show_screen(login_frame)
+
+def home_view():
+    show_screen(home_frame)
+
+def handle_register(name, username, password, repeated_password):
+    if not name or not username or not password or not repeated_password:
+        print('Preencha todos os campos')
+        return 
+    
+    if password != repeated_password:
+        print('As senhas são diferentes.')
+        return
+
+    user_info = (name, username, password)
+
+    response = usersCon.set_client(user_info)
+
+    if response == None:
+        pass
+
+def handle_login(username, password):
+    if not username or not password:
+        print('Preencha todos os campos')
+
+    response = sessionMan.validate_login_info(username, password)
+
+    if response:
+        sessionMan.set_login(username)
+        print('Login efetuado com sucesso')
+        pass 
 
 def build_login():
     title = Label(login_frame, text='Faça seu login', font=('Arial', 32, 'bold'))
@@ -59,7 +93,7 @@ def build_login():
     entry_2 = Entry(box_2)
     entry_2.grid(row=1, column=0, ipadx=10, ipady=3)
 
-    button_1 = Button(login_frame, text='Entrar', cursor="hand2")
+    button_1 = Button(login_frame, text='Entrar', cursor="hand2", command=lambda: handle_login(entry_1.get(), entry_2.get()))
     button_1.grid(row=3, column=0, pady=15, ipadx=30, ipady=3)
 
     box_3 = Frame(login_frame)
@@ -72,7 +106,6 @@ def build_login():
     button_2.grid(row=1, column=0, pady=15, ipadx=30, ipady=3)
 
 def build_register():
-    
     title = Label(register_frame, text='Faça seu cadastro', font=('Arial', 32, 'bold'))
     title.grid(pady=10, row=0, column=0)
 
@@ -112,7 +145,9 @@ def build_register():
     entry_4 = Entry(box_4)
     entry_4.grid(row=1, column=0, ipadx=10, ipady=3)
 
-    button_1 = Button(register_frame, text='Criar conta', cursor="hand2")
+    button_1 = Button(register_frame, text='Criar conta', cursor="hand2", 
+                      command=lambda:handle_register(entry_1.get(), entry_2.get(), entry_3.get(), entry_4.get()))
+    
     button_1.grid(row=5, column=0, pady=15, ipadx=30, ipady=3)
 
     box_5 = Frame(register_frame)
@@ -124,12 +159,15 @@ def build_register():
     button_2 = Button(box_5, text='Fazer login', bd=0, highlightthickness=0, cursor="hand2", command=lambda:login_view())
     button_2.grid(row=1, column=0, pady=15, ipadx=30, ipady=3)
 
-def register_view():
-    show_screen(register_frame)
+def build_home():
+    title = Label(register_frame, text='Seja bem-vindo!', font=('Arial', 32, 'bold'))
+    title.grid(pady=10, row=0, column=0)
 
-def login_view():
-    show_screen(login_frame)
+    box_1 = Frame(register_frame)
+    box_1.grid(row=1, column=0)
 
+    label_1 = Label(box_1, text='O que deseja fazer?')
+    label_1.grid(row=0, column=0)
 
 def start_app():
     build_login()
@@ -138,7 +176,6 @@ def start_app():
     login_view()
     root.mainloop()
 
-start_app()
 
 # class Interface:
 #     pass

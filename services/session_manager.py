@@ -8,7 +8,7 @@ class Session_manager:
     
     @classmethod
     def set_login(cls, username):
-        cls.__client =  uController.get_client_by_username(username)
+        cls.__client = uController.get_client_by_username(username)
 
     @classmethod
     def validate_login_info(cls, username, password):

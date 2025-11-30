@@ -5,6 +5,10 @@ from model.client_model import Client
 class Db_users_controller:
     @classmethod
     def set_client(cls, client):
+        if cls.get_client_by_username(client[1]):
+            print('Usuário já cadastrado')
+            return False
+
         try:
             with sqlite3.connect('./database/users.db') as connection:
                 cursor = connection.cursor()
