@@ -1,6 +1,6 @@
 from tkinter import *
 
-# from controllers.db_products_controller import Db_products_controller as prodController
+from controllers.db_products_controller import Db_products_controller as prodController
 from controllers.db_users_controller import Db_users_controller as usersCon
 from services.session_manager import Session_manager as sessionMan
 # from view import login_view
@@ -29,7 +29,6 @@ frames = [login_frame, register_frame, home_frame]
 
 for frame in frames:
     frame.grid(row=0, column=0, sticky='nsew')
-
     frame.grid_columnconfigure(0, weight=1)
 
 def show_screen(frame):
@@ -58,7 +57,7 @@ def handle_register(name, username, password, repeated_password):
     response = usersCon.set_client(user_info)
 
     if response == None:
-        pass
+        home_view()
 
 def handle_login(username, password):
     if not username or not password:
@@ -69,7 +68,7 @@ def handle_login(username, password):
     if response:
         sessionMan.set_login(username)
         print('Login efetuado com sucesso')
-        pass 
+        home_view()
 
 def build_login():
     title = Label(login_frame, text='Faça seu login', font=('Arial', 32, 'bold'))
@@ -160,18 +159,59 @@ def build_register():
     button_2.grid(row=1, column=0, pady=15, ipadx=30, ipady=3)
 
 def build_home():
-    title = Label(register_frame, text='Seja bem-vindo!', font=('Arial', 32, 'bold'))
+    title = Label(home_frame, text='Seja bem-vindo!', font=('Arial', 32, 'bold'))
     title.grid(pady=10, row=0, column=0)
 
-    box_1 = Frame(register_frame)
-    box_1.grid(row=1, column=0)
+    label_1 = Label(home_frame, text='O que deseja?')
+    label_1.grid(row=1, column=0)
 
-    label_1 = Label(box_1, text='O que deseja fazer?')
-    label_1.grid(row=0, column=0)
+
+    box_products = Frame(home_frame)
+    box_products.grid(row = 2, column = 0)
+
+    product_list = prodController.get_products()
+
+    n_cols = 3
+    for i, p in enumerate(product_list):
+        r = i // n_cols
+        c = i % n_cols
+
+        product = Frame(box_products, bd=2, relief='solid')
+
+        product.grid(row= r, column= c, padx=15, pady=10, ipadx=15)
+
+        product_name = Label(product, text= p.get_product_info()[0])
+        product_name.grid(row=0 , column=0 , sticky='w')
+
+        product_price = Label(product, text='R$ ' + str(p.get_product_info()[1]))
+        product_price.grid(row=1 , column=0 , sticky='w')
+
+        product_stock = Label(product, text='Quantidade: ' + str(p.get_product_info()[2]))
+        product_stock.grid(row=2 , column=0 , sticky='w')
+
+        product_buttons = Frame(product)
+        product_buttons.grid(row=3 , column=0, pady=10, sticky='e')
+
+        entry_qtd = Entry(product_buttons, width=8)
+        entry_qtd.grid(row=0, column=0, pady=5)
+
+        button_buy = Button(product_buttons, text='Comprar', cursor='hand2')
+        button_buy.grid(row=1 , column=0)
+
+    box_buttons = Frame(home_frame)
+    box_buttons.grid(row=3, column=0)
+
+    button_leave = Button(box_buttons, text = 'Sair', command=root.destroy, cursor="hand2")
+    button_leave.grid(row=0, column=0, pady=15, ipadx=30, ipady=3)
+
+    button_advanced = Button(box_buttons, text = 'Avançado', cursor="hand2")
+    button_advanced.grid(row=0, column=1, pady=15, ipadx=30, ipady=3)
+
 
 def start_app():
     build_login()
     build_register()
+    build_home()
 
     login_view()
     root.mainloop()
