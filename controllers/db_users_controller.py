@@ -1,5 +1,4 @@
 import sqlite3
-from utils.terminal import sleep
 from model.client_model import Client
 
 class Db_users_controller:
@@ -21,13 +20,12 @@ class Db_users_controller:
                 connection.commit()
 
             print('Usuário adicionado com sucesso!')
-            sleep()
 
         except Exception as e:
             print('Ops... Parece que algo deu errado.')
             print('Encontramos um problema ao realizar o cadastro')
             print(e)
-            sleep()
+
 
     @classmethod
     def get_clients(cls):
@@ -44,7 +42,6 @@ class Db_users_controller:
                 return client_list
         except: 
             print('Ocorreu um erro ao recuperar os dados.')
-            sleep()
 
     @classmethod
     def delete_user(cls, id):
@@ -58,12 +55,10 @@ class Db_users_controller:
                 connection.commit()
 
             print('Cliente deletado com sucesso!')
-            sleep()
 
         except Exception as e:
             print('Ocorreu um erro ao excluir cliente.')
             print('Erro:', e)
-            sleep()
 
     @classmethod
     def get_users_info(cls, logged_client):

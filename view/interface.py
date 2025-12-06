@@ -3,7 +3,8 @@ from tkinter import *
 from controllers.db_products_controller import Db_products_controller as prodController
 from controllers.db_users_controller import Db_users_controller as usersCon
 from services.session_manager import Session_manager as sessionMan
-# from view import login_view
+from controllers.market_controller import Market
+import view.navigation as nav 
 # from model.product_model import Product
 # from utils.terminal import clear, sleep
 # import uuid
@@ -31,45 +32,6 @@ for frame in frames:
     frame.grid(row=0, column=0, sticky='nsew')
     frame.grid_columnconfigure(0, weight=1)
 
-def show_screen(frame):
-    frame.tkraise()
-
-def register_view():
-    show_screen(register_frame)
-
-def login_view():
-    show_screen(login_frame)
-
-def home_view():
-    show_screen(home_frame)
-
-def handle_register(name, username, password, repeated_password):
-    if not name or not username or not password or not repeated_password:
-        print('Preencha todos os campos')
-        return 
-    
-    if password != repeated_password:
-        print('As senhas são diferentes.')
-        return
-
-    user_info = (name, username, password)
-
-    response = usersCon.set_client(user_info)
-
-    if response == None:
-        home_view()
-
-def handle_login(username, password):
-    if not username or not password:
-        print('Preencha todos os campos')
-
-    response = sessionMan.validate_login_info(username, password)
-
-    if response:
-        sessionMan.set_login(username)
-        print('Login efetuado com sucesso')
-        home_view()
-
 def build_login():
     title = Label(login_frame, text='Faça seu login', font=('Arial', 32, 'bold'))
     title.grid(pady=10, row=0, column=0)
@@ -92,7 +54,7 @@ def build_login():
     entry_2 = Entry(box_2)
     entry_2.grid(row=1, column=0, ipadx=10, ipady=3)
 
-    button_1 = Button(login_frame, text='Entrar', cursor="hand2", command=lambda: handle_login(entry_1.get(), entry_2.get()))
+    button_1 = Button(login_frame, text='Entrar', cursor="hand2", command=lambda: sessionMan.handle_login(entry_1.get(), entry_2.get()))
     button_1.grid(row=3, column=0, pady=15, ipadx=30, ipady=3)
 
     box_3 = Frame(login_frame)
@@ -101,7 +63,7 @@ def build_login():
     label_3 = Label(box_3, text='Não possui uma conta?')
     label_3.grid(row=0, column=0, pady=(10, 0))
 
-    button_2 = Button(box_3, text='Criar uma conta', bd=0, highlightthickness=0, cursor="hand2", command=lambda:(register_view()))
+    button_2 = Button(box_3, text='Criar uma conta', bd=0, highlightthickness=0, cursor="hand2", command=lambda: nav.show_screen(register_frame))
     button_2.grid(row=1, column=0, pady=15, ipadx=30, ipady=3)
 
 def build_register():
@@ -145,7 +107,7 @@ def build_register():
     entry_4.grid(row=1, column=0, ipadx=10, ipady=3)
 
     button_1 = Button(register_frame, text='Criar conta', cursor="hand2", 
-                      command=lambda:handle_register(entry_1.get(), entry_2.get(), entry_3.get(), entry_4.get()))
+                      command=lambda:usersCon.handle_register(entry_1.get(), entry_2.get(), entry_3.get(), entry_4.get()))
     
     button_1.grid(row=5, column=0, pady=15, ipadx=30, ipady=3)
 
@@ -195,7 +157,7 @@ def build_home():
         entry_qtd = Entry(product_buttons, width=8)
         entry_qtd.grid(row=0, column=0, pady=5)
 
-        button_buy = Button(product_buttons, text='Comprar', cursor='hand2')
+        button_buy = Button(product_buttons, text='Comprar', cursor='hand2', command=lambda p=p, entry_qtd=entry_qtd: Market.set_order(p.get_product_info(), entry_qtd.get()))
         button_buy.grid(row=1 , column=0)
 
     box_buttons = Frame(home_frame)
@@ -207,13 +169,17 @@ def build_home():
     button_advanced = Button(box_buttons, text = 'Avançado', cursor="hand2")
     button_advanced.grid(row=0, column=1, pady=15, ipadx=30, ipady=3)
 
-
 def start_app():
+
+    nav.set_frame('login', login_frame)
+    nav.set_frame('register', register_frame)
+    nav.set_frame('home', home_frame)
+
     build_login()
     build_register()
     build_home()
 
-    login_view()
+    nav.show_screen('login')
     root.mainloop()
 
 

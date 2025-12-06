@@ -1,5 +1,4 @@
 import sqlite3
-from utils.terminal import sleep
 from model.product_model import Product
 
 class Db_products_controller:
@@ -36,7 +35,6 @@ class Db_products_controller:
         except Exception as e:
             print('Erro ao buscar os produtos!')
             print(f'Erro: {e}')
-            sleep()
 
     @classmethod
     def verify_product(cls, product):
@@ -46,7 +44,6 @@ class Db_products_controller:
         except Exception as e:
             print('Erro ao verificar os produtos.')
             print(f'Erro: {e}')
-            sleep()
 
     @classmethod
     def get_product(cls, product):
@@ -56,4 +53,3 @@ class Db_products_controller:
         except Exception as e:
             print('Erro ao buscar produto.')
             print(f'Erro: {e}')
-            sleep()
